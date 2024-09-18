@@ -1,14 +1,30 @@
-import { useState } from "react";
+import React, { useRef, useState } from "react";
 import Header from "./Header";
+import { validate } from "../utils/validate";
 
 interface ILoginProps {}
 
 const Login: React.FC<ILoginProps> = () => {
   const [isSignIn, setIsSignIn] = useState<boolean>(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>("");
+  const email = useRef<HTMLInputElement | null>(null);
+  const password = useRef<HTMLInputElement | null>(null);
 
-  const toggleSignInForm = () => {
-    setIsSignIn(!isSignIn)
-  }
+  const toggleSignInForm = (): void => {
+    setIsSignIn(!isSignIn);
+  };
+  const handleGenericClick = (e: React.MouseEvent): void => {
+    e.preventDefault();
+    const verify: null | string = validate(
+      email.current?.value!,
+      password.current?.value!
+    );
+
+    setErrorMessage(verify);
+
+    console.log("verify", verify);
+
+  };
 
   return (
     <div className="relative w-full h-screen">
@@ -29,22 +45,30 @@ const Login: React.FC<ILoginProps> = () => {
           {" "}
           {isSignIn ? "Sign In" : "Sign Up"}
         </h1>
-        {!isSignIn && (<input
-          type="text"
-          placeholder="Full Name"
-          className="p-4 my-4 w-full bg-gray-700"
-        />)}
+        {!isSignIn && (
+          <input
+            type="text"
+            placeholder="Full Name"
+            className="p-4 my-4 w-full bg-gray-700"
+          />
+        )}
         <input
+          ref={email}
           type="text"
           placeholder="Email Address"
           className="p-4 my-4 w-full bg-gray-700"
         />
         <input
+          ref={password}
           type="password"
           placeholder="Password"
           className="p-4 my-4 w-full bg-gray-700"
         />
-        <button className="p-4 my-6 bg-red-700 w-full rounded-lg">
+        {errorMessage && <p className="text-red-700 text-lg py-2 font-bold">{errorMessage}</p>}
+        <button
+          className="p-4 my-6 bg-red-700 w-full rounded-lg"
+          onClick={(e) => handleGenericClick(e)}
+        >
           {isSignIn ? "Sign In" : "Sign Up"}
         </button>
         <span className="py-4 cursor-pointer" onClick={toggleSignInForm}>

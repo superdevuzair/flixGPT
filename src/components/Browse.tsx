@@ -1,10 +1,11 @@
 import * as React from 'react';
+import Header from './Header';
 
 interface IBrowseProps {
 }
 
 const Browse: React.FunctionComponent<IBrowseProps> = (props) => {
-  return (<h1>Browse</h1>)
+  return (<div><Header /></div>)
 };
 
 export default Browse;

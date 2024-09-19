@@ -6,14 +6,21 @@ import {
   createUserWithEmailAndPassword,
   UserCredential,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
+import { NavigateFunction, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
 interface ILoginProps {}
 
 const Login: React.FC<ILoginProps> = () => {
   const [isSignIn, setIsSignIn] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>("");
+  const navigate: NavigateFunction = useNavigate();
+  const dispatch = useDispatch();
   const email = useRef<HTMLInputElement | null>(null);
   const password = useRef<HTMLInputElement | null>(null);
+  const name = useRef<HTMLInputElement | null>(null);
 
   const toggleSignInForm = (): void => {
     setIsSignIn(!isSignIn);
@@ -36,8 +43,25 @@ const Login: React.FC<ILoginProps> = () => {
         password.current?.value!
       )
         .then((userCredentials: UserCredential) => {
-          const user = userCredentials.user;
-          console.log("user", user);
+          updateProfile(userCredentials.user, {
+            displayName: name.current?.value!,
+          })
+            .then(() => {
+              const { uid, email, displayName } = auth.currentUser!;
+              //dispatch function to update display name for current user 
+              //We are using AuthStateChange-> firebase for Adding and removing user from Redux.
+              dispatch(
+                addUser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                })
+              );
+              navigate("/browse");
+            })
+            .catch((error: Error) => {
+              console.log("error", error.message);
+            });
         })
         .catch((error: Error) => {
           const errorMsg: string = error.message;
@@ -52,7 +76,7 @@ const Login: React.FC<ILoginProps> = () => {
         password.current?.value!
       )
         .then((user: UserCredential) => {
-          console.log("user", user);
+          navigate("/browse");
         })
         .catch((error: Error) => {
           setErrorMessage(error.message);
@@ -84,6 +108,7 @@ const Login: React.FC<ILoginProps> = () => {
         </h1>
         {!isSignIn && (
           <input
+            ref={name}
             type="text"
             placeholder="Full Name"
             className="p-4 my-4 w-full bg-gray-700"

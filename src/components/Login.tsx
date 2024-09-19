@@ -1,7 +1,12 @@
 import React, { useRef, useState } from "react";
 import Header from "./Header";
 import { validate } from "../utils/validate";
-
+import { auth } from "../utils/firebase";
+import {
+  createUserWithEmailAndPassword,
+  UserCredential,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 interface ILoginProps {}
 
 const Login: React.FC<ILoginProps> = () => {
@@ -19,11 +24,43 @@ const Login: React.FC<ILoginProps> = () => {
       email.current?.value!,
       password.current?.value!
     );
-
-    setErrorMessage(verify);
+    if (verify) {
+      setErrorMessage(verify);
+      return;
+    }
+    if (!isSignIn) {
+      //signup with firebase
+      createUserWithEmailAndPassword(
+        auth,
+        email.current?.value!,
+        password.current?.value!
+      )
+        .then((userCredentials: UserCredential) => {
+          const user = userCredentials.user;
+          console.log("user", user);
+        })
+        .catch((error: Error) => {
+          const errorMsg: string = error.message;
+          console.error(errorMsg);
+          setErrorMessage(errorMsg);
+        });
+    } else {
+      //sign in with firebase
+      signInWithEmailAndPassword(
+        auth,
+        email.current?.value!,
+        password.current?.value!
+      )
+        .then((user: UserCredential) => {
+          console.log("user", user);
+        })
+        .catch((error: Error) => {
+          setErrorMessage(error.message);
+          console.error(error.message);
+        });
+    }
 
     console.log("verify", verify);
-
   };
 
   return (
@@ -64,7 +101,9 @@ const Login: React.FC<ILoginProps> = () => {
           placeholder="Password"
           className="p-4 my-4 w-full bg-gray-700"
         />
-        {errorMessage && <p className="text-red-700 text-lg py-2 font-bold">{errorMessage}</p>}
+        {errorMessage && (
+          <p className="text-red-700 text-lg py-2 font-bold">{errorMessage}</p>
+        )}
         <button
           className="p-4 my-6 bg-red-700 w-full rounded-lg"
           onClick={(e) => handleGenericClick(e)}

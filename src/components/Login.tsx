@@ -8,7 +8,7 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
-import { NavigateFunction, useNavigate } from "react-router-dom";
+// import { NavigateFunction, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 interface ILoginProps {}
@@ -16,7 +16,7 @@ interface ILoginProps {}
 const Login: React.FC<ILoginProps> = () => {
   const [isSignIn, setIsSignIn] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>("");
-  const navigate: NavigateFunction = useNavigate();
+  // const navigate: NavigateFunction = useNavigate();
   const dispatch = useDispatch();
   const email = useRef<HTMLInputElement | null>(null);
   const password = useRef<HTMLInputElement | null>(null);
@@ -57,7 +57,6 @@ const Login: React.FC<ILoginProps> = () => {
                   displayName: displayName,
                 })
               );
-              navigate("/browse");
             })
             .catch((error: Error) => {
               console.log("error", error.message);
@@ -76,15 +75,13 @@ const Login: React.FC<ILoginProps> = () => {
         password.current?.value!
       )
         .then((user: UserCredential) => {
-          navigate("/browse");
+          
         })
         .catch((error: Error) => {
           setErrorMessage(error.message);
           console.error(error.message);
         });
     }
-
-    console.log("verify", verify);
   };
 
   return (
